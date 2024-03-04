@@ -2,6 +2,7 @@ package Windows;
 
 import Database.DatabaseConnection;
 import javax.swing.*;
+import java.awt.*;
 import java.sql.*;
 import java.util.ArrayList;
 
@@ -9,6 +10,7 @@ public class LeaderboardWindow extends JFrame {
     private ArrayList<String> username = new ArrayList<>();
     private ArrayList<Integer> score = new ArrayList<>();
     private JButton backButton;
+    Cursor cursor = new Cursor(Cursor.CROSSHAIR_CURSOR);
     //Constructor
     public LeaderboardWindow() {
         this.setSize(600, 600);
@@ -19,6 +21,7 @@ public class LeaderboardWindow extends JFrame {
         this.setLocationRelativeTo(null);
         setLayout(null);
         setFocusable(true);
+        setCursor(cursor);
         createUI();
         repaint();
     }
@@ -57,7 +60,7 @@ public class LeaderboardWindow extends JFrame {
             JOptionPane.showMessageDialog(this, "Error during registration: " + ex.getMessage(), "Error",JOptionPane.ERROR_MESSAGE);
         }
         //Adding leaderboard labels
-        JLabel tableLabel = new JLabel("Position    " + "Username    " + "Score    ");
+        JLabel tableLabel = new JLabel("Position           " + "Score             " + "Username    ");
         tableLabel.setBounds(180, 100,250,25);
         add(tableLabel);
 
@@ -68,7 +71,7 @@ public class LeaderboardWindow extends JFrame {
     }
     //Method for adding a lable for players in top10
     private void addLabel(int place, String username, int score, int position){
-        JLabel placeLabel = new JLabel(place + ".                " + username + "                  " + score);
+        JLabel placeLabel = new JLabel("    " + place + ".                    " + score + "                    " + username);
         placeLabel.setBounds(180, position,250,25);
         add(placeLabel);
     }

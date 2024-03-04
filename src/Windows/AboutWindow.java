@@ -1,10 +1,12 @@
 package Windows;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class AboutWindow extends JFrame {
 
     private JButton backButton;
+    Cursor cursor = new Cursor(Cursor.CROSSHAIR_CURSOR);
     public AboutWindow(){
         this.setSize(600, 600);
         this.setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
@@ -14,6 +16,7 @@ public class AboutWindow extends JFrame {
         this.setVisible(true);
         setLayout(null);
         setFocusable(true);
+        setCursor(cursor);
         createUI();
         repaint();
     }

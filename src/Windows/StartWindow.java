@@ -1,12 +1,18 @@
 package Windows;
 
 import javax.swing.*;
+import java.awt.*;
 
 public class StartWindow extends JFrame {
     private JButton startButton;
     private JButton scoreButton;
     private JButton instructionsButton;
     private JButton quitButton;
+
+    Cursor cursor = new Cursor(Cursor.CROSSHAIR_CURSOR);
+//            StartWindow.setCursor(cursor);
+//            StartWindow.setVisible(true);
+
     //Constructor
     public StartWindow() {
         setSize(600, 600);
@@ -17,8 +23,10 @@ public class StartWindow extends JFrame {
         setLocationRelativeTo(null);
         setLayout(null);
         setFocusable(true);
+        setCursor(cursor);
         createUI();
         repaint();
+
 
     }
     //Creates UI

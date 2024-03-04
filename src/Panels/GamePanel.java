@@ -1,14 +1,13 @@
 package Panels;
 
 import Database.DatabaseConnection;
-import Windows.GameWindow;
 import Windows.StartWindow;
 
+import javax.sound.sampled.AudioInputStream;
+import javax.sound.sampled.AudioSystem;
+import javax.sound.sampled.Clip;
 import javax.swing.*;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.Graphics;
-import java.awt.Rectangle;
+import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.awt.event.ActionListener;
 import java.awt.event.MouseAdapter;
@@ -29,9 +28,7 @@ public class GamePanel extends JPanel {
     private Timer timer;
     private JButton startButton = new JButton("Start Game");
     private JButton backButton = new JButton("Back to Main Menu");
-
     private JTextField usernameField;
-
     //Constructor
     public GamePanel() {
         setLayout(null);
@@ -50,7 +47,6 @@ public class GamePanel extends JPanel {
 
         backButton.setBounds(170, 480, 200, 40);
         add(backButton);
-
 
         timer = new Timer(1000, new ActionListener() {
             @Override
@@ -72,6 +68,12 @@ public class GamePanel extends JPanel {
         startButton.addActionListener(new ActionListener() {
             @Override
             public void actionPerformed(ActionEvent e) {
+                // username field check
+                String username = usernameField.getText();
+                if(username.isEmpty()){
+                    JOptionPane.showMessageDialog(usernameField, "Username is required", "Error", JOptionPane.ERROR_MESSAGE);
+                    return;
+                }
                 if (!gameActive) {
                     gameActive = true;
                     score = 0;
@@ -91,16 +93,31 @@ public class GamePanel extends JPanel {
             }
         });
 
+        //Calls for opening of Main menu and closing of Game Window on click of the back button
+        backButton.addActionListener(new ActionListener() {
+            @Override
+            public void actionPerformed(ActionEvent e) {
+                JComponent comp = (JComponent) e.getSource();
+                Window win = SwingUtilities.getWindowAncestor(comp);
+                StartWindow startWindow = new StartWindow();
+                startWindow.setVisible(true);
+                win.dispose();
+            }
+        });
+
         this.addMouseListener(new MouseAdapter() {
             @Override
             public void mouseClicked(MouseEvent e) {
                 if (!gameActive) return;
-
                 Iterator<Block> iterator = blocks.iterator();
                 while (iterator.hasNext()) {
                     Block block = iterator.next();
                     if (block.rect.contains(e.getPoint())) {
                         iterator.remove();
+                        shootingSound(); //shooting sound on click
+                        if (block.color.equals(Color.RED.darker())) {
+                            timeLeft += 2; // PowerUp block
+                        }
                         score++;
                         generateBlock();
                         break;
@@ -111,6 +128,18 @@ public class GamePanel extends JPanel {
         });
     }
 
+    //shooting sound on click
+    private void shootingSound(){
+        try {
+            AudioInputStream audioInputStream = AudioSystem.getAudioInputStream(getClass().getResource("/Sound/shotgun-firing-3-14483.wav"));
+            Clip clip = AudioSystem.getClip();
+            clip.open(audioInputStream);
+            clip.start();
+
+        } catch (Exception ex) {
+            ex.printStackTrace();
+        }
+    }
 
     @Override
     protected void paintComponent(Graphics g) {
@@ -136,7 +165,15 @@ public class GamePanel extends JPanel {
         int y = rand.nextInt(Math.max(1, this.getHeight() - 50));
         int width = 20 + rand.nextInt(81);
         int height = 20 + rand.nextInt(81);
-        Color color = new Color(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
+
+
+        //random color and PowerUp Block color
+        Color color;
+        if (rand.nextInt(10) == 0) { // 1 in 10 chance for a special block (for testing, if it works)
+            color = Color.RED.darker(); // Dark red color for powerUp Block
+        } else {
+            color = new Color(rand.nextFloat(), rand.nextFloat(), rand.nextFloat());
+        }
         blocks.add(new Block(new Rectangle(x, y, width, height), color));
     }
 
@@ -150,15 +187,9 @@ public class GamePanel extends JPanel {
         }
     }
 
-    //Adds score to leaderboard
+    //Adds score to database
     public void addScore(){
         String username = usernameField.getText();
-
-        // field check
-        if(username.isEmpty()){
-            JOptionPane.showMessageDialog(this, "All fields are required", "Error", JOptionPane.ERROR_MESSAGE);
-            return;
-        }
 
         //insert query
         String sql = "INSERT INTO players (username, score) VALUES (?, ?)";
@@ -175,8 +206,5 @@ public class GamePanel extends JPanel {
             JOptionPane.showMessageDialog(this, "Error during registration: " + ex.getMessage(), "Error",JOptionPane.ERROR_MESSAGE);
         }
     }
-
-
-
 
 }
